@@ -4,18 +4,21 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Ground
+  - Through
+  - Enemy
+  - FlyingEnemyPool
+  - GroundEnemyPool
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
+  - Enemy
   - 
-  - 
-  - 
-  - 
+  - Player
+  - Obstacle
   - 
   - 
   - 
@@ -39,8 +42,8 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: BG
-    uniqueID: 1892684283
+  - name: Background
+    uniqueID: 1611635347
     locked: 0
   - name: Default
     uniqueID: 0

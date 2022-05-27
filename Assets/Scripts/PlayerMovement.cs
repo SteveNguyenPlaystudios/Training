@@ -2,79 +2,60 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
-{
-    public float moveSpeed;
-    public float jumpForce;
-    public ParticleSystem dustRight;
-    public ParticleSystem dustLeft;
+public class PlayerMovement : MonoBehaviour {
 
-    private Rigidbody2D rb;
-    private bool isJumping;
-    private float moveHorizontal;
-    private float moveVertical;
+	public CharacterController2D controller;
+	private Animator anim;
 
+	public float runSpeed = 40f;
 
-    [HideInInspector]
-    public static bool controllable;
-    [HideInInspector]
-    public static bool facingRight;
+	float horizontalMove = 0f;
+	bool jump = false;
+	bool crouch = false;
 
-    public void Awake()
+    private void Awake()
     {
-        facingRight = true; 
-        controllable = true;
-        rb = GetComponent<Rigidbody2D>();
-        isJumping = false;
+		anim = GetComponent<Animator>();
+
+	}
+
+    // Update is called once per frame
+    void Update () {
+
+		horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
+		anim.SetFloat("Speed", Mathf.Abs(horizontalMove));
+
+		if (Input.GetButtonDown("Jump"))
+		{
+			jump = true;
+			anim.SetBool("IsJumping", true);
+		}
+
+		if (Input.GetButtonDown("Crouch"))
+		{
+			crouch = true;
+		} else if (Input.GetButtonUp("Crouch"))
+		{
+			crouch = false;
+		}
+
+	}
+
+	public void OnLanding()
+    {
+		anim.SetBool("IsJumping", false);
     }
 
-    public void Update()
-    {
-        moveHorizontal = Input.GetAxisRaw("Horizontal");
-        moveVertical = Input.GetAxisRaw("Vertical");
+	public void OnCrouching(bool isCrouching)
+	{
+		anim.SetBool("IsCrouching", isCrouching);
+	}
 
-    }
 
-    public void FixedUpdate()
-    {
-        if (controllable)
-        {
-            if (moveHorizontal > 0.1f || moveHorizontal < -0.1f)
-            {
-                rb.AddForce(new Vector2(moveHorizontal * moveSpeed * Time.deltaTime, 0f), ForceMode2D.Impulse);
-                if (moveHorizontal > 0.1f)
-                {
-                    facingRight = true;
-                    dustRight.Play();
-                } 
-                if (moveHorizontal < -0.1f)
-                {
-                    facingRight = false;
-                    dustLeft.Play();
-                }
-            }
-
-            if (!isJumping && moveVertical > 0.1f)
-            {
-                rb.AddForce(new Vector2(0f, moveVertical * jumpForce * Time.deltaTime), ForceMode2D.Impulse);
-            }
-        }
-        
-    }
-
-    public void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isJumping = false;
-        }
-    }
-
-    public void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isJumping = true;   
-        }
-    }   
+	void FixedUpdate ()
+	{
+		// Move our character
+		controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump);
+		jump = false;
+	}
 }
